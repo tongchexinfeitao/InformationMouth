@@ -1,7 +1,10 @@
 package com.ali.informationmouth;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -10,16 +13,19 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.ali.informationmouth.base.BaseActivity;
 import com.ali.informationmouth.base.BaseFragment;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends BaseActivity {
 
 
+    private ImageView imageView;
     private ViewPager viewPager;
     private TabLayout tabLayout;
     //fragment集合
@@ -81,14 +87,40 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void initView() {
+        imageView = findViewById(R.id.img);
         viewPager = findViewById(R.id.vp);
         tabLayout = findViewById(R.id.tlayout);
+
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //打开相册
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/*");
+                startActivityForResult(intent, 100);
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+//        if (requestCode == 100 && resultCode == RESULT_OK) {
+
+            Uri data1 = data.getData();
+            //将Uri转成Bitmap
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data1);
+                imageView.setImageBitmap(bitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+//        }
     }
 
     @Override
     protected int layoutId() {
         return R.layout.activity_main;
     }
-
-
 }
